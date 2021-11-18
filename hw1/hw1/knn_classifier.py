@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset, DataLoader
+from scipy.stats import mode
 
 import cs236781.dataloader_utils as dataloader_utils
 
