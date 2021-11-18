@@ -29,8 +29,8 @@ class InvertColors(object):
         """
         # TODO: Invert the colors of the input image.
         # ====== YOUR CODE: ======
-        inverted = 1.-x
-        return inverted
+      #  x = 1 - x
+        return 1. - x
         # ========================
 
 
@@ -42,7 +42,8 @@ class FlipUpDown(object):
         """
         # TODO: Flip the input image so that up is down.
         # ====== YOUR CODE: ======
-        return torch.flip(x, [1])
+        a = x.shape[1]-1
+        return torch.stack([torch.stack([x[j][a-i] for i in range(x.shape[1])]) for j in range(x.shape[0])])
         # ========================
 
 
@@ -67,5 +68,7 @@ class BiasTrick(object):
         #  Add a 1 at the beginning of the given tensor's feature dimension.
         #  Hint: See torch.cat().
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        dims = list(x.shape[:-1]) + [1]
+        return torch.cat([torch.ones(dims, dtype=torch.int64), x], dim=x.dim()-1)
+
         # ========================
