@@ -20,8 +20,9 @@ def random_labelled_image(
     # TODO:
     #  Implement according to the docstring description.
     # ====== YOUR CODE: ======
-    image = torch.randint(low, high, shape, dtype=dtype)
-    label = torch.randn(1).random_(0, num_classes).to(dtype=int).item()   
+    image = torch.randint(low=low, high=high, size=shape, dtype=dtype)
+    label = torch.randn(1).random_(0, num_classes).to(dtype=int).item()
+    # label = torch.randint(size=[1], low=0, high=num_classes-1).item()
     # ========================
     return image, label
 
@@ -124,9 +125,17 @@ class ImageStreamDataset(IterableDataset):
         #  Yield tuples to produce an iterator over random images and labels.
         #  The iterator should produce an infinite stream of data.
         # ====== YOUR CODE: ======
+        '''
         while True:
             X, y = random_labelled_image(self.image_dim, self.num_classes)
             yield X, y
+        '''
+        x = -1
+        while True:
+            x += 1
+            with torch_temporary_seed(x):
+                yield random_labelled_image(self.image_dim, self.num_classes)
+        
         # ========================
 
 
@@ -154,9 +163,15 @@ class SubsetDataset(Dataset):
         #  Return the item at index + offset from the source dataset.
         #  Raise an IndexError if index is out of bounds.
         # ====== YOUR CODE: ======
+        if index < 0 or index >= self.subset_len:
+            raise IndexError()
+        return self.source_dataset[index + self.offset]
+               
+        '''
         if (index + self.offset >= self.subset_len):
             raise IndexError()
         return self.source_dataset[index + self.offset]
+        '''
         # ========================
 
     def __len__(self):

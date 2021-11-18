@@ -25,6 +25,7 @@ class FirstLastSampler(Sampler):
         # If the length of the data source is N, you should return indices in a
         # first-last ordering, i.e. [0, N-1, 1, N-2, ...].
         # ====== YOUR CODE: ======
+        '''
         seq = []
         l = list(range(self.__len__()))
         i = 0
@@ -37,6 +38,20 @@ class FirstLastSampler(Sampler):
         if len(l) % 2 != 0:    
             seq.append(l[i])
         return iter(seq)
+        '''
+        
+        i = 0
+        j = len(self.data_source) - 1
+        first = True
+        while (i<=j):
+            if first:
+                yield i
+                i+=1
+            else:
+                yield j
+                j-=1
+            first = not first
+        
         # ========================
 
     def __len__(self):
@@ -69,6 +84,18 @@ def create_train_validation_loaders(
     #  Hint: you can specify a Sampler class for the `DataLoader` instance
     #  you create.
     # ====== YOUR CODE: ======
+    '''
+    n = len(dataset)
+    validation_size = math.floor(n*validation_ratio)
+    train_size = math.ceil(n - validation_size)
+    train_idx, valid_idx = torch.utils.data.random_split(range(n), [train_size, validation_size])
+
+    dl_train = torch.utils.data.DataLoader(dataset, batch_size, num_workers=num_workers, sampler=torch.utils.data.SubsetRandomSampler(train_idx))
+    dl_valid = torch.utils.data.DataLoader(dataset, batch_size, num_workers=num_workers, sampler=torch.utils.data.SubsetRandomSampler(valid_idx))
+    '''
+    
+    
+    
     l = list(range(len(dataset)))
     val_size = int(validation_ratio*len(dataset))
     train_size = len(dataset) - val_size
