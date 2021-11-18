@@ -107,38 +107,27 @@ part4_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+The ideal pattern in a residual plot will be represented by the normally distributed y-hats across the x-axis. The indication of how our model fits the data we will get from the proximity of values to the zero line.
 
 """
 
 part4_q2 = r"""
 **Your answer:**
 
+1. The model is linear. By adding nonlinear features we increase the capacity of a model to fit the data, which may be not linear.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. When there is a non-linear relation between the target and the features, fitting the right non-linear function will result in better linear separability in new coordinate space. Such transformations doesn't help to any nonlinearity, only the ones following the speciffic distribution
 
+3. Adding non-linear features will not affect the decision boundary, it just will increase the separability.
 """
 
 part4_q3 = r"""
 **Your answer:**
 
+1. We used np.logspace because values of 𝜆 are small, it increases their range.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. N = k_folds * lambda_range * degree_range = 3 * 20 * 4 = 240
+ 
 
 """
 
