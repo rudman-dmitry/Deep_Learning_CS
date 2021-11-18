@@ -52,12 +52,21 @@ class SVMHingeLoss(ClassifierLoss):
 
         loss = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        n_classes = x_scores.shape[1]
+        #print(y.shape)
+        one_hot = torch.logical_not(y.reshape(y.shape[0], 1) - torch.Tensor(range(n_classes)).reshape(1,n_classes)).float()
+        R = torch.mm(x_scores, torch.transpose(one_hot, 0,1)).diagonal()
+        M = torch.transpose(x_scores, 0, 1) - R
+        #M = torch.max(M+torch.tensor([self.delta]), torch.tensor([0]))
+        M = torch.relu(M+torch.tensor([self.delta]))
+        loss = torch.sum(M)/M.shape[1] - self.delta
         # ========================
 
         # TODO: Save what you need for gradient calculation in self.grad_ctx
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.grad_ctx["M"] = torch.transpose(M, 0, 1)
+        self.grad_ctx["one_hot"] = one_hot
+        self.grad_ctx["X"] = x
         # ========================
 
         return loss
@@ -75,7 +84,24 @@ class SVMHingeLoss(ClassifierLoss):
 
         grad = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        # transform M to a 0,1 (0 remains 0, positive values become 1, simply
+        # divide M by itself element-wise. EXCEPT that for w_j, all entries that correspond
+        # to samples that were classified as j contain the minus sum of the rest of the row.
+        # we have one_hot for assistance.
+
+        one_hot = self.grad_ctx["one_hot"]
+        M = self.grad_ctx["M"]
+        X = self.grad_ctx["X"]
+        #_M = M/M
+        _M = (M>0).float()
+        _M_sum_rows = -torch.sum(_M, dim=1) + self.delta
+        _M_sum_rows = torch.diag(_M_sum_rows)
+
+        one_hot_sums = torch.mm(_M_sum_rows, one_hot)
+
+        G = _M - one_hot + one_hot_sums
+        grad = torch.mm(torch.transpose(X, 0, 1), G) / X.shape[0]
+
         # ========================
 
         return grad
