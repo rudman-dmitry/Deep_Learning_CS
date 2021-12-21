@@ -15,6 +15,7 @@ from .cnn import CNN, ResNet, YourCNN
 from .mlp import MLP
 from .training import ClassifierTrainer
 from .classifier import ArgMaxClassifier, BinaryClassifier, select_roc_thresh
+from cs236781.dataloader_utils import flatten
 
 DATA_DIR = os.path.expanduser("~/.pytorch-datasets")
 
@@ -46,7 +47,15 @@ def mlp_experiment(
     #  Note: use print_every=0, verbose=False, plot=False where relevant to prevent
     #  output from this function.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    model = BinaryClassifier(model=MLP(in_dim=2, dims=[width]*depth,
+                                     nonlins=["tanh"]*(depth-1)+["logsoftmax"]))
+    trainer = ClassifierTrainer(model=model, loss_fn = torch.nn.NLLLoss(),
+                      optimizer=torch.optim.SGD(params=model.parameters(), lr = 0.1, momentum = 0.5, weight_decay = 0.01))
+    res = trainer.fit(dl_train = dl_train, dl_test = dl_valid, num_epochs=n_epochs, print_every=0)
+    thresh = select_roc_thresh(model, *flatten(dl_valid), plot = False)
+    model.threshold = thresh
+    _, test_acc = trainer.test_epoch(dl_test, verbose = False)
+    valid_acc = res.test_acc[-1]
     # ========================
     return model, thresh, valid_acc, test_acc
 
