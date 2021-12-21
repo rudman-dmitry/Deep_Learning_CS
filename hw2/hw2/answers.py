@@ -16,10 +16,10 @@ def part1_arch_hp():
     out_activation = "none"  # activation function to apply at the output layer
     # TODO: Tweak the MLP architecture hyperparameters.
     # ====== YOUR CODE: ======
-    n_layers = 2
-    activation = "relu"
+    n_layers = 3
+    activation = "tanh"
     out_activation = "logsoftmax"
-    hidden_dims = 5
+    hidden_dims = 3
     # ========================
     return dict(
         n_layers=n_layers,
@@ -42,8 +42,8 @@ def part1_optim_hp():
     #    Loss classes in torch.nn or one of the loss functions from torch.nn.functional.
     # ====== YOUR CODE: ======
     loss_fn = torch.nn.NLLLoss()
-    #loss_fn = torch.nn.MSELoss()
-    lr = 0.01
+    #loss_fn = torch.nn.CrossEntropyLoss()
+    lr = 0.1
     momentum = 0.5
     weight_decay = 0.01
     # ========================
@@ -115,13 +115,13 @@ def part2_optim_hp():
     # TODO:
     #  - Tweak the Optimizer hyperparameters.
     #  - Choose the appropriate loss function for your architecture.
-    #    What you returns needs to be a callable, so either an instance of one of the
+    #    What you return needs to be a callable, so either an instance of one of the
     #    Loss classes in torch.nn or one of the loss functions from torch.nn.functional.
     # ====== YOUR CODE: ======
-    loss_fn = torch.nn.functional.cross_entropy
-    lr = 0.01
-    weight_decay = 0.0005
-    momentum = 0.8
+    loss_fn = torch.nn.CrossEntropyLoss()
+    lr = 0.1
+    weight_decay = 0.01
+    momentum = 0.3
     # ========================
     return dict(lr=lr, weight_decay=weight_decay, momentum=momentum, loss_fn=loss_fn)
 
