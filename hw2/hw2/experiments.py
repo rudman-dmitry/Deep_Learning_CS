@@ -87,7 +87,7 @@ def cnn_experiment(
     Executes a single run of a Part3 experiment with a single configuration.
 
     These parameters are populated by the CLI parser below.
-    See the help string of each parameter for it's meaning.
+    See the help string of each parameter for its meaning.
     """
     if not seed:
         seed = random.randint(0, 2 ** 31)
@@ -117,7 +117,22 @@ def cnn_experiment(
     #   for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    in_size = ds_train[0][0].shape
+    out_classes = 10
+    channels = []
+    for filter in filters_per_layer:
+        for l in range(layers_per_block):
+            channels.append(filter)
+    dl_train = DataLoader(dataset=ds_train, batch_size=bs_train, shuffle=True)
+    dl_test = DataLoader(dataset=ds_test, batch_size=bs_test, shuffle=True)
+    model = MODEL_TYPES[model_type](**kw, pool_every=pool_every, hidden_dims=hidden_dims,
+                                    in_size=in_size, out_classes=out_classes, channels=channels)
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, momentum=0.4, weight_decay=0.01)
+    trainer = ClassifierTrainer(model=model, loss_fn=torch.nn.CrossEntropyLoss(),
+                                optimizer=optimizer, device = device)
+    fit_res = trainer.fit(dl_train, dl_test, num_epochs=epochs, checkpoints=checkpoints,
+                early_stopping=early_stopping, **kw)
+
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)

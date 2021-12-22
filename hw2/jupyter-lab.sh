@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ###
 # CS236781: Deep Learning
 # jupyter-lab.sh
