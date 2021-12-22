@@ -101,7 +101,7 @@ class Trainer(abc.ABC):
             #  - Optional: Implement checkpoints. You can use the save_checkpoint
             #    method on this class to save the model to the file specified by
             #    the checkpoints argument.
-            if best_acc is None or test_result.accuracy > best_acc:
+            if best_acc is not None and test_result.accuracy <= best_acc:
                 # ====== YOUR CODE: ======
                 epochs_without_improvement += 1
                 
@@ -113,7 +113,8 @@ class Trainer(abc.ABC):
                 epochs_without_improvement = 0
                 
             if early_stopping and epochs_without_improvement == early_stopping:
-                break                
+                break
+         #        pass                
                 # ========================
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
