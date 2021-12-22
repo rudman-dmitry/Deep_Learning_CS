@@ -56,23 +56,19 @@ class MLP(nn.Module):
         #    instances.
         # ====== YOUR CODE: ======
         super().__init__()
-
-        module_list = []
-        layer_idxs = range(len(nonlins))
-        for layer_idx in layer_idxs:
-            if layer_idx == 0:
-                module_list.append(nn.Linear(in_dim, dims[layer_idx]))
-            else:
-                module_list.append(nn.Linear(dims[layer_idx-1], dims[layer_idx]))
-            
-            nonlin = nonlins[layer_idx]
-            if isinstance(nonlin, str):
-                nonlin = ACTIVATIONS[nonlin]()
-            module_list.append(nonlin)
-
-            
-        self.model = nn.Sequential(*module_list)
-
+        nonlins = [ACTIVATIONS[nonlin](**ACTIVATION_DEFAULT_KWARGS[nonlin]) if nonlin in ACTIVATIONS else nonlin for nonlin in nonlins]
+        layers = []
+        for num_in, num_out, non_l in zip([in_dim] + dims[:-1], dims, nonlins):
+            layers += [nn.Linear(num_in, num_out), non_l]
+        #print(layers)
+        """
+        layers = [item for t in [(nn.Linear(num_in, num_out), non_l)
+                    for num_in, num_out, non_l in zip([in_dim] + dims[:-1], dims, nonlins)]
+                  for item in t]
+        print(layers)
+        
+        """
+        self.layers = nn.Sequential(*layers)
         # ========================
 
     def forward(self, x: Tensor) -> Tensor:
@@ -83,7 +79,6 @@ class MLP(nn.Module):
         # TODO: Implement the model's forward pass. Make sure the input and output
         #  shapes are as expected.
         # ====== YOUR CODE: ======
-        
-        return self.model(x)       
-
+        x = torch.reshape(x, (x.shape[0],-1))
+        return self.layers(x)
         # ========================

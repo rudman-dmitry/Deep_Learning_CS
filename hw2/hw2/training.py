@@ -84,15 +84,13 @@ class Trainer(abc.ABC):
             # ====== YOUR CODE: ======
             train_result = self.train_epoch(dl_train, verbose=verbose, **kw)
             test_result = self.test_epoch(dl_test, verbose = verbose, **kw)
-           # print(train_result.accuracy)
-            print(list(self.model.parameters())[3].grad)
-            #print(list(self.model.parameters()))
+
             for res, res_l in zip([train_result.losses, train_result.accuracy, test_result.losses, test_result.accuracy],
                                       [train_loss, train_acc, test_loss, test_acc]):
                 if torch.is_tensor(res):
                     assert not res.dim()
                     res = res.item()
-                   # print(res)
+
                 res_l.append(np.mean(res))
 
             # ========================
@@ -274,22 +272,17 @@ class ClassifierTrainer(Trainer):
         #  - Update parameters
         #  - Classify and calculate number of correct predictions
         # ====== YOUR CODE: ======
-        y_proba = self.model(X)
-        y_pred = self.model.classify_scores(y_proba)
+        y_raw = self.model(X)
+        y_pred = self.model.classify_scores(self.model.predict_proba_scores(y_raw))
+
 
         self.optimizer.zero_grad()
-        loss = self.loss_fn(y_proba, y)
-       # print(list(self.model.parameters))
+        loss = self.loss_fn(y_raw, y)
         loss.backward()
-        #print(list(self.model.parameters())[0].grad)
-        #old_params = self.optimizer.param_groups
-        #print(self.optimizer.param_groups)
         self.optimizer.step()
-       # print("equal: ", self.optimizer.param_groups == old_params)
-
         batch_loss = loss.item()
         num_correct = sum(y_pred == y)
-        #print(num_correct)
+
         # ========================
 
         return BatchResult(batch_loss, num_correct)
@@ -309,9 +302,10 @@ class ClassifierTrainer(Trainer):
             #  - Forward pass
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            y_proba = self.model(X)
-            y_pred = self.model.classify_scores(y_proba)
-            batch_loss = self.loss_fn(y_proba, y).item()
+            y_raw = self.model(X)
+          #  y_pred = self.model.classify_scores(y_proba)
+            y_pred = self.model.classify_scores(self.model.predict_proba_scores(y_raw))
+            batch_loss = self.loss_fn(y_raw, y).item()
             num_correct = sum(y_pred == y)
 
             # ========================

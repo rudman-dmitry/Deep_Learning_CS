@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from torch import Tensor, nn
 from typing import Optional
+from math import exp
+import numpy as np
 from sklearn.metrics import roc_curve
 
 
@@ -60,6 +62,13 @@ class Classifier(nn.Module, ABC):
         # TODO: Calculate class probabilities for the input.
         # ====== YOUR CODE: ======
        # m = nn.LogSoftmax(dim=1)
+        if torch.all(z <= 1) and torch.all(z >= 0):
+            if torch.allclose(torch.sum(z, dim=1), torch.tensor(1.0)):
+                return z
+            a = torch.exp(z)
+            if torch.allclose(torch.sum(a, dim=1), torch.tensor(1.0)):
+                return a
+
         m = nn.Softmax(dim=1)
         return m(z)
         # ========================
@@ -98,8 +107,10 @@ class ArgMaxClassifier(Classifier):
         #  Classify each sample to one of C classes based on the highest score.
         #  Output should be a (N,) integer tensor.
         # ====== YOUR CODE: ======
-        max_idx = torch.argmax(y_proba, dim = 1)
-        return max_idx
+        #print(y_proba)
+        #print(torch.argmax(y_proba, dim=1))
+        return torch.argmax(y_proba, dim=1)
+        #return torch.squeeze(torch.argmax(y_proba, dim=1), dim=1)
         # ========================
 
 
@@ -131,10 +142,12 @@ class BinaryClassifier(Classifier):
         #  greater or equal to the threshold.
         #  Output should be a (N,) integer tensor.
         # ====== YOUR CODE: ======
+        #print(y_proba)
         z = y_proba[:,self.positive_class].reshape((1,-1))
         temp = torch.where(z >= self.threshold, self.positive_class, 1-self.positive_class)
-   #     return torch.reshape(temp, [y_proba.shape[0]]).type(dtype=torch.int32)
-        return torch.reshape(temp, [y_proba.shape[0]])
+        #print("hey", temp)
+        return torch.reshape(temp, [y_proba.shape[0]]).type(dtype=torch.int32)
+        #return torch.reshape(temp, [y_proba.shape[0]])
         # ========================
 
 
@@ -183,7 +196,28 @@ def plot_decision_boundary_2d(
     #  plot a contour map.
     x1_grid, x2_grid, y_hat = None, None, None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    min_x = 2*int(min(x[:,0]))
+    max_x = 2*int(max(x[:,0]))
+    min_y = 2*int(min(x[:,1]))
+    max_y = 2*int(max(x[:,1]))
+
+    x1_grid, x2_grid = torch.meshgrid(torch.linspace(min_x,max_x,int((max_x-min_x)/dx)),
+                                      torch.linspace(min_y,max_y,int((max_y-min_y)/dx)))
+    #print(x1_grid)
+    #print(x2_grid)
+    #to_evaluate = torch.stack((x1_grid, x2_grid), dim=2)
+    #print(torch.flatten(to_evaluate, start_dim=0, end_dim=1))
+    to_evaluate = torch.stack([torch.flatten(x1_grid), torch.flatten(x2_grid)], dim=1)
+    #print(x1_grid.shape)
+    #print(x2_grid.shape)
+    #print(to_evaluate.shape)
+    #print(to_evaluate)
+    #print(to_evaluate.shape)
+    y_hat = classifier.classify(to_evaluate)
+    #print(y_hat.shape)
+    y_hat = torch.reshape(y_hat, (len(x1_grid),-1))
+    #print(y_hat.shape)
+    #print(y_hat)
     # ========================
 
     # Plot the decision boundary as a filled contour
@@ -215,9 +249,13 @@ def select_roc_thresh(
     #  Calculate the index of the optimal threshold as optimal_thresh_idx.
     #  Calculate the optimal threshold as optimal_thresh.
     fpr, tpr, thresh = None, None, None
-    optimal_theresh_idx, optimal_thresh = None, None
+    optimal_thresh_idx, optimal_thresh = None, None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    y_hat = classifier.predict_proba(x)
+
+    fpr, tpr, thresh = roc_curve(y.numpy(), y_hat[:, classifier.positive_class].detach().numpy())
+    optimal_thresh_idx = np.argmin((tpr-1)**2+fpr**2)
+    optimal_thresh = thresh[optimal_thresh_idx]
     # ========================
 
     if plot:
