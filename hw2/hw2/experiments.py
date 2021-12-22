@@ -120,13 +120,14 @@ def cnn_experiment(
     in_size = ds_train[0][0].shape
     out_classes = 10
     channels = []
+    pooling_params = {"kernel_size":2}
     for filter in filters_per_layer:
         for l in range(layers_per_block):
             channels.append(filter)
     dl_train = DataLoader(dataset=ds_train, batch_size=bs_train, shuffle=True)
     dl_test = DataLoader(dataset=ds_test, batch_size=bs_test, shuffle=True)
-    model = MODEL_TYPES[model_type](**kw, pool_every=pool_every, hidden_dims=hidden_dims,
-                                    in_size=in_size, out_classes=out_classes, channels=channels)
+    model = ArgMaxClassifier(MODEL_TYPES[model_type](**kw, pool_every=pool_every, pooling_params=pooling_params ,hidden_dims=hidden_dims,
+                                    in_size=in_size, out_classes=out_classes, channels=channels))
     optimizer = torch.optim.SGD(params=model.parameters(), lr=lr, momentum=0.4, weight_decay=0.01)
     trainer = ClassifierTrainer(model=model, loss_fn=torch.nn.CrossEntropyLoss(),
                                 optimizer=optimizer, device = device)

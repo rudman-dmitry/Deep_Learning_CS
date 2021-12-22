@@ -209,19 +209,23 @@ class ResidualBlock(nn.Module):
         #    correct comparison in the test.
         # ====== YOUR CODE: ======
         layers = []
-        for in_channel, out_channel, kernel_size in zip([in_channels] + channels[:-2], channels[:-1],
-                                                        kernel_sizes[:-1]):
-            layers.append(nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
-                                    # kernel_size=tuple((in_channel,*kernel_size))))
-                                    kernel_size=kernel_size, bias=True, padding='same'))
-            if dropout:
-                layers.append(nn.Dropout2d(p=dropout))
-            if batchnorm:
-                layers.append(nn.BatchNorm2d(num_features=out_channel))
+        if len(kernel_sizes) == 1:
+            layers.append(nn.Conv2d(in_channels=in_channels, out_channels=channels[0], kernel_size=kernel_sizes[0],
+                                   padding='same'))
+        else:
+            for in_channel, out_channel, kernel_size in zip([in_channels] + channels[:-2], channels[:-1],
+                                                            kernel_sizes[:-1]):
+                layers.append(nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
+                                        # kernel_size=tuple((in_channel,*kernel_size))))
+                                        kernel_size=kernel_size, bias=True, padding='same'))
+                if dropout:
+                    layers.append(nn.Dropout2d(p=dropout))
+                if batchnorm:
+                    layers.append(nn.BatchNorm2d(num_features=out_channel))
 
-            layers.append(ACTIVATIONS[activation_type](**activation_params))
+                layers.append(ACTIVATIONS[activation_type](**activation_params))
 
-        layers.append(nn.Conv2d(in_channels=channels[-2], out_channels=channels[-1], kernel_size=kernel_sizes[-1],
+            layers.append(nn.Conv2d(in_channels=channels[-2], out_channels=channels[-1], kernel_size=kernel_sizes[-1],
                                 padding='same'))
 
         self.main_path = nn.Sequential(*layers)
