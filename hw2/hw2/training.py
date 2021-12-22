@@ -103,11 +103,16 @@ class Trainer(abc.ABC):
             #    the checkpoints argument.
             if best_acc is None or test_result.accuracy > best_acc:
                 # ====== YOUR CODE: ======
-                pass
+                epochs_without_improvement += 1
+                
                 # ========================
             else:
                 # ====== YOUR CODE: ======
-                pass
+                best_acc = test_results.accuracy
+                epochs_without_improvement = 0
+                
+            if early_stopping and epochs_without_improvement == early_stopping:
+                break                
                 # ========================
 
         return FitResult(actual_num_epochs, train_loss, train_acc, test_loss, test_acc)
