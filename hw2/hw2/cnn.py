@@ -19,17 +19,17 @@ class CNN(nn.Module):
     """
 
     def __init__(
-        self,
-        in_size,
-        out_classes: int,
-        channels: Sequence[int],
-        pool_every: int,
-        hidden_dims: Sequence[int],
-        conv_params: dict = {},
-        activation_type: str = "relu",
-        activation_params: dict = {},
-        pooling_type: str = "max",
-        pooling_params: dict = {},
+            self,
+            in_size,
+            out_classes: int,
+            channels: Sequence[int],
+            pool_every: int,
+            hidden_dims: Sequence[int],
+            conv_params: dict = {},
+            activation_type: str = "relu",
+            activation_params: dict = {},
+            pooling_type: str = "max",
+            pooling_params: dict = {},
     ):
         """
         :param in_size: Size of input images, e.g. (C,H,W).
@@ -83,26 +83,26 @@ class CNN(nn.Module):
         pooling = POOLINGS[self.pooling_type]
         activation = ACTIVATIONS[self.activation_type]
 
-        layers.append(nn.Conv2d(in_channels, self.channels[0], kernel_size = self.conv_params['kernel_size'],
-                          stride = self.conv_params['stride'], padding = self.conv_params['padding']))
+        layers.append(nn.Conv2d(in_channels, self.channels[0], kernel_size=self.conv_params['kernel_size'],
+                                stride=self.conv_params['stride'], padding=self.conv_params['padding']))
         layers.append(activation(**self.activation_params))
-                      
-        if self.pool_every == 1: 
+
+        if self.pool_every == 1:
             layers.append(pooling(**self.pooling_params))
-        
+
         counter = 1
-                      
-        for i in range(len(self.channels)-1): 
+
+        for i in range(len(self.channels) - 1):
             layers.append(nn.Conv2d(self.channels[i], self.channels[i + 1],
-                                    kernel_size = self.conv_params['kernel_size'], stride = self.conv_params['stride'],
-                                    padding = self.conv_params['padding']))
+                                    kernel_size=self.conv_params['kernel_size'], stride=self.conv_params['stride'],
+                                    padding=self.conv_params['padding']))
             layers.append(activation(**self.activation_params))
             counter += 1
-                               
+
             if counter % self.pool_every == 0:
                 layers.append(pooling(**self.pooling_params))
                 counter = 0
-                        
+
         # ========================
         seq = nn.Sequential(*layers)
         return seq
@@ -134,7 +134,7 @@ class CNN(nn.Module):
         mlp_dims = [*self.hidden_dims, self.out_classes]
         mlp_nonlins = [ACTIVATIONS[self.activation_type](**self.activation_params) for _ in mlp_dims]
         mlp_nonlins[-1] = ACTIVATIONS[None]()
-        mlp = MLP(in_dim = self._n_features(), dims = mlp_dims, nonlins = mlp_nonlins)
+        mlp = MLP(in_dim=self._n_features(), dims=mlp_dims, nonlins=mlp_nonlins)
         # ========================
         return mlp
 
@@ -157,15 +157,15 @@ class ResidualBlock(nn.Module):
     """
 
     def __init__(
-        self,
-        in_channels: int,
-        channels: Sequence[int],
-        kernel_sizes: Sequence[int],
-        batchnorm: bool = False,
-        dropout: float = 0.0,
-        activation_type: str = "relu",
-        activation_params: dict = {},
-        **kwargs,
+            self,
+            in_channels: int,
+            channels: Sequence[int],
+            kernel_sizes: Sequence[int],
+            batchnorm: bool = False,
+            dropout: float = 0.0,
+            activation_type: str = "relu",
+            activation_params: dict = {},
+            **kwargs,
     ):
         """
         :param in_channels: Number of input channels to the first convolution.
@@ -184,8 +184,8 @@ class ResidualBlock(nn.Module):
         """
         super().__init__()
         assert channels and kernel_sizes
-        #print(channels)
-        #print(kernel_sizes)
+        # print(channels)
+        # print(kernel_sizes)
         assert len(channels) == len(kernel_sizes)
         assert all(map(lambda x: x % 2 == 1, kernel_sizes))
 
@@ -209,9 +209,10 @@ class ResidualBlock(nn.Module):
         #    correct comparison in the test.
         # ====== YOUR CODE: ======
         layers = []
-        for in_channel, out_channel, kernel_size in zip([in_channels] + channels[:-2], channels[:-1], kernel_sizes[:-1]):
+        for in_channel, out_channel, kernel_size in zip([in_channels] + channels[:-2], channels[:-1],
+                                                        kernel_sizes[:-1]):
             layers.append(nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
-                                   # kernel_size=tuple((in_channel,*kernel_size))))
+                                    # kernel_size=tuple((in_channel,*kernel_size))))
                                     kernel_size=kernel_size, bias=True, padding='same'))
             if dropout:
                 layers.append(nn.Dropout2d(p=dropout))
@@ -220,14 +221,14 @@ class ResidualBlock(nn.Module):
 
             layers.append(ACTIVATIONS[activation_type](**activation_params))
 
-        layers.append(nn.Conv2d(in_channels = channels[-2], out_channels=channels[-1] , kernel_size=kernel_sizes[-1], padding='same'))
+        layers.append(nn.Conv2d(in_channels=channels[-2], out_channels=channels[-1], kernel_size=kernel_sizes[-1],
+                                padding='same'))
 
         self.main_path = nn.Sequential(*layers)
-        self.shortcut_path = nn.Sequential() if in_channels == channels[-1]\
-                                             else nn.Sequential(nn.Conv2d(in_channels = in_channels,
-                                                                     out_channels=channels[-1],
-                                                                          kernel_size =1, bias=False))
-
+        self.shortcut_path = nn.Sequential() if in_channels == channels[-1] \
+            else nn.Sequential(nn.Conv2d(in_channels=in_channels,
+                                         out_channels=channels[-1],
+                                         kernel_size=1, bias=False))
 
         # ========================
 
@@ -247,11 +248,11 @@ class ResidualBottleneckBlock(ResidualBlock):
     """
 
     def __init__(
-        self,
-        in_out_channels: int,
-        inner_channels: Sequence[int],
-        inner_kernel_sizes: Sequence[int],
-        **kwargs,
+            self,
+            in_out_channels: int,
+            inner_channels: Sequence[int],
+            inner_kernel_sizes: Sequence[int],
+            **kwargs,
     ):
         """
         :param in_out_channels: Number of input and output channels of the block.
@@ -285,16 +286,16 @@ class ResidualBottleneckBlock(ResidualBlock):
 
 class ResNet(CNN):
     def __init__(
-        self,
-        in_size,
-        out_classes,
-        channels,
-        pool_every,
-        hidden_dims,
-        batchnorm = False,
-        dropout=0.0,
-        bottleneck: bool = False,
-        **kwargs,
+            self,
+            in_size,
+            out_classes,
+            channels,
+            pool_every,
+            hidden_dims,
+            batchnorm=False,
+            dropout=0.0,
+            bottleneck: bool = False,
+            **kwargs,
     ):
         """
         See arguments of CNN & ResidualBlock.
@@ -326,72 +327,60 @@ class ResNet(CNN):
         #    channels match for each group of P convolutions.
         # ====== YOUR CODE: ======
         all_channels = [in_channels] + self.channels
-        pools_num = int(len(self.channels)/self.pool_every)
-        #bottleneck = True if self.bottleneck and all([all_channels[i*self.pool_every]==all_channels[(i+1)*self.pool_every-1]
-                                                   #   for i in range(pools_num)]) else False
-        _kernel_sizes = [3]*self.pool_every
+        pools_num = int(len(self.channels) / self.pool_every)
+        # bottleneck = True if self.bottleneck and all([all_channels[i*self.pool_every]==all_channels[(i+1)*self.pool_every-1]
+        #   for i in range(pools_num)]) else False
+        _kernel_sizes = [3] * self.pool_every
         for i in range(pools_num):
-            _in_channels = all_channels[i*self.pool_every]
-            _channels = all_channels[i*self.pool_every+1:(i+1)*self.pool_every+1]
+            _in_channels = all_channels[i * self.pool_every]
+            _channels = all_channels[i * self.pool_every + 1:(i + 1) * self.pool_every + 1]
             bottleneck = True if self.bottleneck and _in_channels == _channels[-1] else False
-            #print(len(_channels))
-            #print(len(_kernel_sizes))
+
             if bottleneck:
-           #     assert(_in_channels == _channels[-1])
-                #print(_in_channels)
-                #print(_channels)
                 layers.append(ResidualBottleneckBlock(in_out_channels=_in_channels, inner_channels=_channels[1:-1],
-                            inner_kernel_sizes = _kernel_sizes[1:-1], batchnorm=self.batchnorm, dropout=self.dropout
-                                                      , activation_type = self.activation_type, activation_params=self.activation_params))
+                                                      inner_kernel_sizes=_kernel_sizes[1:-1], batchnorm=self.batchnorm,
+                                                      dropout=self.dropout
+                                                      , activation_type=self.activation_type,
+                                                      activation_params=self.activation_params))
             else:
+              #  print(_kernel_sizes)
+               # print(_channels)
                 layers.append(ResidualBlock(in_channels=_in_channels, channels=_channels, kernel_sizes=_kernel_sizes,
-                                            batchnorm=self.batchnorm, dropout=self.dropout, activation_params=self.activation_params,
+                                            batchnorm=self.batchnorm, dropout=self.dropout,
+                                            activation_params=self.activation_params,
                                             activation_type=self.activation_type))
 
             layers.append(POOLINGS[self.pooling_type](**self.pooling_params))
 
-        res = len(self.channels)%self.pool_every
-        #print(res)
+        res = len(self.channels) % self.pool_every
+
         if res:
-        #    if bottleneck:
-         #       layers.append(ResidualBottleneckBlock())
-          #  else:
-                layers.append(ResidualBlock(in_channels=all_channels[-res-1],channels=all_channels[-res:], kernel_sizes=[3]*res
-                                            , batchnorm=self.batchnorm, dropout=self.dropout, activation_params=self.activation_params
-                                            , activation_type=self.activation_type))
-
-        return nn.Sequential(*layers)
-
-
-
-
-
-
-
-
-
+            layers.append(
+                ResidualBlock(in_channels=all_channels[-res - 1], channels=all_channels[-res:], kernel_sizes=[3] * res
+                              , batchnorm=self.batchnorm, dropout=self.dropout, activation_params=self.activation_params
+                              , activation_type=self.activation_type))
         # ========================
         seq = nn.Sequential(*layers)
         return seq
 
 
-# class YourCNN(CNN):
-#     def __init__(self, *args, **kwargs):
-#         """
-#         See CNN.__init__
-#         """
-#         super().__init__(*args, **kwargs)
+class YourCNN(CNN):
+    def __init__(self, *args, **kwargs):
+        """
+        See CNN.__init__
+        """
+        super().__init__(*args, **kwargs)
 
-#         # TODO: Add any additional initialization as needed.
-#         # ====== YOUR CODE: ======
-#         raise NotImplementedError()
-#         # ========================
+        # TODO: Add any additional initialization as needed.
+        # ====== YOUR CODE: ======
+        #raise NotImplementedError()
+        # ========================
 
-#     # TODO: Change whatever you want about the CNN to try to
-#     #  improve it's results on CIFAR-10.
-#     #  For example, add batchnorm, dropout, skip connections, change conv
-#     #  filter sizes etc.
-#     # ====== YOUR CODE: ======
-#     raise NotImplementedError()
+    # TODO: Change whatever you want about the CNN to try to
+    #  improve its results on CIFAR-10.
+    #  For example, add batchnorm, dropout, skip connections, change conv
+    #  filter sizes etc.
+    # ====== YOUR CODE: ======
+    #raise NotImplementedError()
 
-#     # ========================
+    # ========================

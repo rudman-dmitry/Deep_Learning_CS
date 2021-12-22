@@ -109,6 +109,7 @@ class Trainer(abc.ABC):
             else:
                 # ====== YOUR CODE: ======
                 best_acc = test_results.accuracy
+                save_checkpoint("checkpoints")
                 epochs_without_improvement = 0
                 
             if early_stopping and epochs_without_improvement == early_stopping:
