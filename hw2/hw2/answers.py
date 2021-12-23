@@ -18,7 +18,6 @@ def part1_arch_hp():
     # ====== YOUR CODE: ======
     n_layers = 3
     activation = "tanh"
-    #out_activation = "logsoftmax"
     out_activation = "tanh"
     hidden_dims = 7
     # ========================
@@ -42,7 +41,8 @@ def part1_optim_hp():
     #    What you returns needs to be a callable, so either an instance of one of the
     #    Loss classes in torch.nn or one of the loss functions from torch.nn.functional.
     # ====== YOUR CODE: ======
-    #loss_fn = torch.nn.NLLLoss()
+    loss_fn = torch.nn.NLLLoss()
+    #loss_fn = torch.nn.CrossEntropyLoss()
     loss_fn = torch.nn.CrossEntropyLoss()
     #lr = 0.1
     lr= 0.03
@@ -61,11 +61,12 @@ we see that rotating the upper arm of the z-shape slightly to the left can yield
 we believ that the model has a somewhat high generalization error. 
 3. Approximation error - based on the decision boundary plot, the model does
 not have a high approximation error, since it is capable or learning a z-shaped line that
-is capable of separating half-moon structures well. 
+is capable of separating half-moon structures well.
 
 """
 
 part1_q2 = r"""
+**Your answer:**
 
 Considering the data generating process, illustrated in the beginning of part 1, we see that there is an area ((x=0.5,x=1), (y=0.25,y=0.75)
 that is densely populated by positive examples in the validation set, and by negative examples in the training set. Overall, observing
@@ -74,6 +75,9 @@ the two plots, we would expect more negative examples to be misclassified, i.e.,
 """
 
 part1_q3 = r"""
+**Your answer:**
+
+
 1. In this scenario we would prioritise not sending healthy patients to undergo the expensive, risky 
 second examinations, namely we would want the FPR to be as low as possible. Hence, we would pick the
 threshold corresponding to the lowest FPR on the ROC curve.  
@@ -86,6 +90,7 @@ highest TPR value on the ROC curve.
 
 part1_q4 = r"""
 **Your answer:**
+
 1. For a fixed depth, we can expect to achieve better(or at least not worse) accuracies the wider the network is,
 since a narrow network can theoretically be contained in a wider one(by not using the extra neurons 
 in each layer). However, optimization problems come into play and may prevent it, as we can see in the case
@@ -104,6 +109,7 @@ as 2 hidden layers (with sufficient width) are able to fit any arbitrary functio
 4. Choosing a threshold based on the validation set did improve the results on the test set compared to
 the original accuracy of the validation set with the initial threshold. We can attribute it to the fact that the learning algorithm
 and the validation data generalize well to the underlying distribution.
+
 """
 # ==============
 # Part 2 answers
@@ -130,15 +136,30 @@ def part2_optim_hp():
 
 
 part2_q1 = r"""
-**Your answer:**
+### Clause 1 
+
+**$ Regular block: Layer1 + Layer2 = (3*3*256+1)*256 + (3*3*256+1)*256 = 1180160 parameters. $**
+
+**$ BottleneckBlock: Layer1 + Layer2 + Layer3 = (1*1*256+1)*64 + (3*3*64+1)*64 + (1*1*64+1)*256 = 70016 parameters. $**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+There is a significant difference in the number of parameters, BottleneckBlock has 2 orders more.
+
+### Clause 2 
+
+**$Assuming that kernels keeps the dimensions of input images and H - is the height of the image and W - width:$**
+
+**$FLOPs = 2*H*W*output_channels*(in_channels * kernel^2 + 1)$**
+
+**$Regular block: Layer1 + Layer2 = 2*2*H*W*(256 * 3^2 + 1) * 256 = H*W*2,360,320$**
+
+**$BottleneckBlock: Layer1 + Layer2 + Layer3 = 2*H*W*((256 * 1^2 + 1) * 64 + (64 * 3^2 + 1) * 64 + (64 * 1^2 + 1) * 256) = H*W*140,032$**
+
+### Clause 3 
+
+
+Since the receptive fileld of the regular block consists of two 3x3 convolutions it is bigger than the one of the BottleneckBlock, which only has one 3x3 convolution.
+So, within feature maps the the regular block has a better ability to combine the input. Across feature maps both models have similar ability.
 
 """
 
@@ -149,67 +170,48 @@ An equation: $e^{i\pi} -1 = 0$
 
 
 part3_q1 = r"""
-**Your answer:**
 
+1. After 25 epochs the best accuracy was achieved with L=2. Deeper models has more parameters and require more epochs to train, could be that after more epochs the accuracy with L=4 would overcome the one that was achieved with L=2.
+Increasing depth migth be helpfull untill the number of parameters becomes to high which affects the learning process.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. Values of L for which the network wasn't trainable: L=8, L=16. This can be explained by vanishing gradints and presence of pooling layers. The problem can be fixed by adding skip connections and regularization.
 
 """
 
 part3_q2 = r"""
-**Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+In a previous experiment we saw the influence of a depth of the network on a training process. Here we are testing the influence of different number of convolutional filters.
+As we can see from the runs, bigger number of convolutional filters results in better performance of the model, better accuracy reached after same amount of epochs.
+However, networks with deeper layers still don't learn well.
 
 """
 
 part3_q3 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Here we see that only the model with L=1 trains. We can conclude that adding filters in conv layers has a similar effect as adding layers, the network becomes deeper, the number of parameters becomes to high, it affects the learning process and probably causes the problem of vanishing gradients.
 
 """
 
 part3_q4 = r"""
-**Your answer:**
+
+In this part we are testing the influence of adding skip connections to the architecture. As expected, we observe bettet accuracy with increased number of layers, since skip connections helps to overcome the vanishing gradients issue, here gradients can flow freely through these connections. 
+
+Though, it looks like more epochs needed to reveal the potential of adding the skip connections in terms of accuracy.
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+
 
 """
 
 part3_q5 = r"""
-**Your answer:**
 
+In our CNN model we applied ResNet with a dropout of 0.2 and batchnorm between convolution and ReLU.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+These modifications helped to overcome some limitations that were observed in previous parts:
 
+1. Adding a dropout resulted in better abtter ability of the model to generalize, the gap between train_acc and test_acc decreased.
+
+2. Adding batchnormalization weakens the effect of unstable gradients within deep neural networks, allowing adding more layers.
 """
 # ==============
