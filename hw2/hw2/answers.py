@@ -89,7 +89,7 @@ part1_q4 = r"""
 1. For a fixed depth, we can expect to achieve better(or at least not worse) accuracies the wider the network is,
 since a narrow network can theoretically be contained in a wider one(by not using the extra neurons 
 in each layer). However, optimization problems come into play and may prevent it, as we can see in the case
-of depth=4 and width 128, which achieves a slightly lower accuracy than the 32 net. The most significant
+of depth=4 and width 128, which achieves a slightly lower accuracy than the w=32 network. The most significant
 improvement is observed for depth=2 and width=32, compared to width=8. For depth=1, we notice a very small
 improvement which we can attribute to the limitedness of a 1-layer deep network, which is probably not potent enough
 to fit our data, no matter how wide the network is. 
