@@ -203,21 +203,11 @@ def plot_decision_boundary_2d(
 
     x1_grid, x2_grid = torch.meshgrid(torch.linspace(min_x,max_x,int((max_x-min_x)/dx)),
                                       torch.linspace(min_y,max_y,int((max_y-min_y)/dx)))
-    #print(x1_grid)
-    #print(x2_grid)
-    #to_evaluate = torch.stack((x1_grid, x2_grid), dim=2)
-    #print(torch.flatten(to_evaluate, start_dim=0, end_dim=1))
+
     to_evaluate = torch.stack([torch.flatten(x1_grid), torch.flatten(x2_grid)], dim=1)
-    #print(x1_grid.shape)
-    #print(x2_grid.shape)
-    #print(to_evaluate.shape)
-    #print(to_evaluate)
-    #print(to_evaluate.shape)
     y_hat = classifier.classify(to_evaluate)
-    #print(y_hat.shape)
     y_hat = torch.reshape(y_hat, (len(x1_grid),-1))
-    #print(y_hat.shape)
-    #print(y_hat)
+
     # ========================
 
     # Plot the decision boundary as a filled contour

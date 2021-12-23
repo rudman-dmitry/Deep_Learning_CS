@@ -92,6 +92,7 @@ class Trainer(abc.ABC):
                     res = res.item()
 
                 res_l.append(np.mean(res))
+                #res_l.append(res)
 
             # ========================
 
@@ -109,7 +110,7 @@ class Trainer(abc.ABC):
             else:
                 # ====== YOUR CODE: ======
                 best_acc = test_result.accuracy
-                self.save_checkpoint("checkpoints")
+               # self.save_checkpoint("checkpoints")
                 epochs_without_improvement = 0
                 
             if early_stopping and epochs_without_improvement == early_stopping:
