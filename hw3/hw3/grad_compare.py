@@ -5,7 +5,7 @@ from . import layers
 
 def compare_layer_to_torch(layer: layers.Layer, x, y=None, seed=42):
     """
-    Compares the manually calculated gradients of a Layer (it's backward
+    Compares the manually calculated gradients of a Layer (its backward
     function) to the gradients produced by PyTorch's autograd.
     """
     # Forward pass
@@ -37,6 +37,7 @@ def compare_layer_to_torch(layer: layers.Layer, x, y=None, seed=42):
 
     # Compare parameter gradients
     for i, (p, dp) in enumerate(layer.params()):
+        #print(dp)
         dp_autograd = p.grad
         diffs.append(torch.norm(dp_autograd - dp))
         print(f"param#{i+1:02d} diff={diffs[-1]:.3f}")

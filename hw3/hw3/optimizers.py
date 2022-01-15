@@ -72,7 +72,8 @@ class VanillaSGD(Optimizer):
             #  Update the gradient according to regularization and then
             #  update the parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg*p
+            p -= self.learn_rate * dp
             # ========================
 
 
@@ -91,7 +92,8 @@ class MomentumSGD(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.params_hist = {}
+
         # ========================
 
     def step(self):
@@ -103,7 +105,12 @@ class MomentumSGD(Optimizer):
             # update the parameters tensor based on the velocity. Don't forget
             # to include the regularization term.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p
+            if p not in self.params_hist:
+                self.params_hist[p] = 0
+            new_hist = self.params_hist[p] * self.momentum - self.learn_rate*dp
+            p += new_hist
+            self.params_hist[p] = new_hist
             # ========================
 
 
@@ -124,10 +131,11 @@ class RMSProp(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.params_hist = {}
         # ========================
 
     def step(self):
+        #print(len(self.params))
         for p, dp in self.params:
             if dp is None:
                 continue
@@ -137,5 +145,18 @@ class RMSProp(Optimizer):
             # average of it's previous gradients. Use it to update the
             # parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            if p not in self.params_hist:
+               # print("hey")
+                self.params_hist[p] = 0
+            dp += self.reg * p
+            new_hist = self.decay*self.params_hist[p] + (1-self.decay)*(dp**2)
+            #print(p)
+            p -= (self.learn_rate/torch.sqrt(new_hist+self.eps))*dp
+            #print(p)
+           # if p not in self.params_hist:
+            #    print("hey")
+            self.params_hist[p] = new_hist
+
+            #print(list(self.params_hist))
+
             # ========================
