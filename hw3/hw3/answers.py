@@ -12,12 +12,7 @@ part1_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1-A. For fully-connected layer the Jacobian tensor of the output will have a shape (batch_size, in_features, batch_size, out_features) = (64, 1024, 64, 512).
 
 """
 
@@ -25,12 +20,7 @@ part1_q2 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Since backpropogation relies on infinitesmall partial derivatives, there are some flaws to it, like: vanishing gradients, exploding gradients, computational expansivness, choosing the hyperparameters, getting stuck local minimums. There are alternatives: difference target propogation, the HSIC (Hilbert-Schmidt Independance Criterion) bottleneck and others. None of these alternatives have beaten the backpropogation method.
 
 """
 # ==============
@@ -160,7 +150,16 @@ def part3_rnn_hyperparams():
     )
     # TODO: Set the hyperparameters to train the model.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    hypers = dict(
+        batch_size=200,
+        seq_len=64,
+        h_dim=128,
+        n_layers=3,
+        dropout=0.1,
+        learn_rate=0.01,
+        lr_sched_factor=0.5,
+        lr_sched_patience=0.5,
+    )
     # ========================
     return hypers
 
@@ -170,7 +169,8 @@ def part3_generation_params():
     temperature = 0.0001
     # TODO: Tweak the parameters to generate a literary masterpiece.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    start_seq = "ACT I."
+    temperature = 0.65
     # ========================
     return start_seq, temperature
 
@@ -179,12 +179,7 @@ part3_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+We divide the whole text into shorter sequences, whose size is a batch size. The split is needed because of the fact that the to-train sequence can be very long such that backpropagation cannot compute that long, as a result we will get exploding/vanishing gradients. 
 
 """
 
@@ -192,12 +187,7 @@ part3_q2 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+This is popssible because, after producing the output the hidden state of the previous sequence sent back to GRU and used for generating the succeeding text. In this manner the process keeps going, generating text longer than initial sequence.  
 
 """
 
@@ -205,12 +195,7 @@ part3_q3 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+We need the batches to be contiguous, in this way we produce continuity between adjacent sequences.
 
 """
 
@@ -218,12 +203,13 @@ part3_q4 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1. We lower the temperature to to make the distributions less uniform to increase the chance of sampling the char with the highest scores compared to the others.
+
+
+2. A high temperature makes the model less confident, the output makes no sense, the probability distribution is too uniform.
+
+
+3. A low temperature makes the model more confident. The recieved output has high repeatability, there is more chance to select the same chars.
 
 """
 # ==============

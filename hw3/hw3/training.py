@@ -90,7 +90,6 @@ class Trainer(abc.ABC):
 
             for num_correct, accuracies in zip([train_result.accuracy, test_result.accuracy], [train_acc, test_acc]):
                 accuracies.append(num_correct)
-
             # ========================
 
             # TODO:
@@ -101,11 +100,11 @@ class Trainer(abc.ABC):
             #    the checkpoints argument.
             if best_acc is None or test_result.accuracy > best_acc:
                 # ====== YOUR CODE: ======
-                pass
+                self.save_checkpoint('best_model.pt')
                 # ========================
             else:
                 # ====== YOUR CODE: ======
-                pass
+                print(f"Not saving cuz... Best acc: {best_acc}\t Curr acc: {test_result.accuracy}")
                 # ========================
 
             if post_epoch_fn:
@@ -119,7 +118,8 @@ class Trainer(abc.ABC):
         as a relative path).
         :param checkpoint_filename: File name or relative path to save to.
         """
-        torch.save(self.model, checkpoint_filename)
+        # torch.save(self.model, checkpoint_filename)
+        torch.save({"model_state": self.model.state_dict()}, checkpoint_filename)
         print(f"\n*** Saved checkpoint {checkpoint_filename}")
 
     def train_epoch(self, dl_train: DataLoader, **kw) -> EpochResult:
@@ -314,22 +314,26 @@ class TorchTrainer(Trainer):
 
 
 class RNNTrainer(Trainer):
+    
     def __init__(self, model, loss_fn, optimizer, device=None):
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.device = device
+        self.model = model.to(device)
+        self.loss_fn = loss_fn
+        self.optimizer = optimizer
         # ========================
 
     def train_epoch(self, dl_train: DataLoader, **kw):
         # TODO: Implement modifications to the base method, if needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.hidden_state = None
         # ========================
         return super().train_epoch(dl_train, **kw)
 
     def test_epoch(self, dl_test: DataLoader, **kw):
         # TODO: Implement modifications to the base method, if needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.hidden_state = None
         # ========================
         return super().test_epoch(dl_test, **kw)
 
@@ -347,7 +351,17 @@ class RNNTrainer(Trainer):
         #  - Update params
         #  - Calculate number of correct char predictions
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        if self.hidden_state is not None:
+            self.hidden_state = self.hidden_state.detach()
+        layer_output, self.hidden_state = self.model.forward(x, self.hidden_state)
+        y = y.reshape(-1, )
+        layer_output = layer_output.reshape(-1, layer_output.shape[2])
+        self.optimizer.zero_grad()
+        loss = self.loss_fn(layer_output, y)
+        loss.backward()
+        self.optimizer.step()
+        ind = torch.argmax(layer_output, 1)
+        num_correct = torch.sum(ind == y)
         # ========================
 
         # Note: scaling num_correct by seq_len because each sample has seq_len
@@ -367,7 +381,14 @@ class RNNTrainer(Trainer):
             #  - Loss calculation
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            if self.hidden_state is not None:
+                self.hidden_state = self.hidden_state.detach()
+            layer_output, self.hidden_state = self.model.forward(x, self.hidden_state)
+            y = y.reshape(-1, )
+            layer_output = layer_output.reshape(-1, layer_output.shape[2])
+            loss = self.loss_fn(layer_output, y)
+            ind = torch.argmax(layer_output, 1)
+            num_correct = torch.sum(ind == y)
             # ========================
 
         return BatchResult(loss.item(), num_correct.item() / seq_len)
