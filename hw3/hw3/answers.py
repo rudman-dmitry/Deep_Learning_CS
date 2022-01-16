@@ -12,7 +12,23 @@ part1_q1 = r"""
 **Your answer:**
 
 
-1-A. For fully-connected layer the Jacobian tensor of the output will have a shape (batch_size, in_features, batch_size, out_features) = (64, 1024, 64, 512).
+1-A. X is (64, 1024), W is (1024, 512), Y is (64, 512). The Jacobian tensor of the output will have a shape (batch_size, in_features, batch_size, out_features) = (64, 1024, 64, 512).
+
+
+1-B. The Jacobian is sparse. For $\pderiv{Y}{\vec{X}_{i,j}}$ all elements are 0 exept those in an i'th row.
+
+
+1-C. We don't need to materialize, according to the chain rule $\delta\mat{X}=\pderiv{Y}{\mat{X}}*{\delta\mat{Y}}$ and since the matrix is sparse, we'll only have the $\mattr{W}$ in i'th row, so this is the only row which is needed for computing the dot product.
+
+
+2-A. The shape of $\pderiv{Y}{\vec{W}_{i,j}}$ is (64, 512), the she shape of W is (1024, 512). The Jacobian will be (1024, 512, 64, 512).
+
+
+2-B. The Jacobian is sparse. For $\pderiv{Y}{\vec{X}_{i,j}}$ all elements are 0 exept those in an j'th column.
+ 
+ 
+2-C. We don't need to materialize, according to the chain rule $\delta\mat{W}=\pderiv{Y}{\mat{W}}*{\delta\mat{Y}}$ and since the matrix is sparse, we'll only have the $\vec{X}_{i}$ in j'th column, so this is the only column which is needed for computing the dot product.
+
 
 """
 
