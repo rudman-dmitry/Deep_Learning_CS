@@ -156,7 +156,16 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     #  generated labels.
     #  See pytorch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    noise = torch.zeros(2, *y_data.shape)
+    noise.uniform_(-label_noise/2, label_noise/2)
+
+    labels = torch.zeros(2, *y_data.shape)
+    labels[1-data_label] = 1
+    labels += noise
+
+    loss_data = F.binary_cross_entropy_with_logits(y_data, labels[0])
+    loss_generated = F.binary_cross_entropy_with_logits(y_generated, labels[1])
+
     # ========================
     return loss_data + loss_generated
 
@@ -177,7 +186,8 @@ def generator_loss_fn(y_generated, data_label=0):
     #  Think about what you need to compare the input to, in order to
     #  formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    labels = torch.zeros(y_generated.shape) if not data_label else torch.ones(y_generated.shape)
+    loss = F.binary_cross_entropy_with_logits(y_generated, labels)
     # ========================
     return loss
 
@@ -202,7 +212,17 @@ def train_batch(
     #  2. Calculate discriminator loss
     #  3. Update discriminator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    dsc_optimizer.zero_grad()
+    n = x_data.shape[0]
+    x_gen = gen_model.sample(n=n)
+
+    y_data = dsc_model(x_data)
+    y_gen = dsc_model(x_gen)
+
+    dsc_loss = dsc_loss_fn(y_data, y_gen)
+    dsc_loss.backward()
+    dsc_optimizer.step()
+
     # ========================
 
     # TODO: Generator update
@@ -210,7 +230,13 @@ def train_batch(
     #  2. Calculate generator loss
     #  3. Update generator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    gen_optimizer.zero_grad()
+    x_gen = gen_model.sample(n, with_grad=True)
+    y_gen = dsc_model(x_gen)
+    gen_loss = gen_loss_fn(y_gen)
+    gen_loss.backward()
+    gen_optimizer.step()
+
     # ========================
 
     return dsc_loss.item(), gen_loss.item()
@@ -234,7 +260,6 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
 
-    raise NotImplementedError()
     # ========================
 
     return saved
