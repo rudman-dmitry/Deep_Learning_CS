@@ -156,10 +156,10 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     #  generated labels.
     #  See pytorch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    noise = torch.zeros(2, *y_data.shape)
+    noise = torch.zeros(2, *y_data.shape, device=y_generated.device)
     noise.uniform_(-label_noise/2, label_noise/2)
 
-    labels = torch.zeros(2, *y_data.shape)
+    labels = torch.zeros(2, *y_data.shape, device=y_generated.device)
     labels[1-data_label] = 1
     labels += noise
 
@@ -186,7 +186,8 @@ def generator_loss_fn(y_generated, data_label=0):
     #  Think about what you need to compare the input to, in order to
     #  formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
-    labels = torch.zeros(y_generated.shape) if not data_label else torch.ones(y_generated.shape)
+    labels = torch.zeros(y_generated.shape, device=y_generated.device) \
+        if not data_label else torch.ones(y_generated.shape, device=y_generated.device)
     loss = F.binary_cross_entropy_with_logits(y_generated, labels)
     # ========================
     return loss
@@ -259,7 +260,11 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  You should decide what logic to use for deciding when to save.
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
-
+    if dsc_losses[-1] < min(dsc_losses) \
+        and gen_losses[-1] < min(gen_losses):
+        torch.save({"model_state": self.model.state_dict()}, checkpoint_file)
+        print(f"\n*** Saved checkpoint {checkpoint_file}")
+        saved = True
     # ========================
 
     return saved

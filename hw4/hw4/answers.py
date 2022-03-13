@@ -186,12 +186,12 @@ def part3_gan_hyperparams():
         label_noise=0.4,
         discriminator_optimizer=dict(
             type="SGD",  # Any name in nn.optim like SGD, Adam
-            lr=0.001,
+            lr=0.01,
             # You can add extra args for the optimizer here
         ),
         generator_optimizer=dict(
             type="SGD",  # Any name in nn.optim like SGD, Adam
-            lr=0.001,
+            lr=0.01,
             # You can add extra args for the optimizer here
         ))
     # ========================
@@ -199,29 +199,17 @@ def part3_gan_hyperparams():
 
 
 part3_q1 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+During training, we sample from the generator on two occasions:
+1. When training the discriminator, we sample images from the generator and evaluate the discriminator's performance based upon its classification on them. Here, we do not take gradients of the samples since we're not trying to optimize the generator's loss function, we treat the generator's parameters as constant.
+2. When training the generator, we wish to minimize its loss function. We obtain the current value of the loss function by sampling images from it and evaluating them with the discriminator. Here, we need to take gradients of the loss function w.r.t. the generator's parameters in order to optimise it w.r.t them. 
 """
 
 part3_q2 = r"""
-**Your answer:**
+1. When training a GAN to generate images, should we decide to stop training solely based on the fact that the Generator loss is below some threshold? Why or why not?
+The generator loss is being below some threshold does not necessarily mean that the generator is performing well. This is due to the fact that the generator loss is highly dependant on the discriminator's performance. Namely, if the discriminator does not perform well, we might get a low loss value for the generator, simply because the discriminator does not classify the samples well enough. Only a low loss value for the discriminator along with a low loss value for the generator may indicate that the generator is performing well.
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+2.What does it mean if the discriminator loss remains at a constant value while the generator loss decreases?
+When the discriminator loss remains at a constant value while the generator loss decreases, we can infer the the generator is learning faster than the discriminator - that is, the discriminator is getting more powerful faster than the discriminator can keep up (their losses are tightly linked to one another).
 """
 
 part3_q3 = r"""
